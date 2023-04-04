@@ -1,1 +1,5 @@
 *.asv
+*.autosave
+*.mat
+*.slxc
+*.xml

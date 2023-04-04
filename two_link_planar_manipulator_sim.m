@@ -1,3 +1,5 @@
+close all; clear all; clc;
+
 %% manipulator truth parameters
 % link lengths (m)
 l = [1 1];
@@ -54,3 +56,13 @@ robot.addBody(link1, 'base');
 robot.addBody(link2, 'link1');
 robot.DataFormat = 'row';
 robot.Gravity    = g;
+
+%% controller parameters
+% controller state will be [q1 q2 q1_dot q2_dot]
+A = [zeros(2) eye(2); zeros(2) zeros(2)];
+B = [zeros(2); eye(2)];
+
+Q = eye(4);
+R = eye(2);
+
+K = lqr(A,B,Q,R);
