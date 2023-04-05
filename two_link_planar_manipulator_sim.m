@@ -66,3 +66,18 @@ Q = eye(4);
 R = eye(2);
 
 K = lqr(A,B,Q,R);
+
+%% Encoder settings
+resolution = 2^12;
+%resolution = 2^14;
+%resolution = 2^16;
+
+offset_error = 1/180*pi; %degree to rad
+
+%measurement delay
+delay_length = 1;
+
+%signal noise
+mean = 0;
+variance = 0.001;
+seed = 1;
