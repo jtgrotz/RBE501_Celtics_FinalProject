@@ -81,3 +81,7 @@ delay_length = 1;
 mean = 0;
 variance = 0.001;
 seed = 1;
+
+%% Model difference settings
+difference = 0.95;
+l1_hat = l*difference;
