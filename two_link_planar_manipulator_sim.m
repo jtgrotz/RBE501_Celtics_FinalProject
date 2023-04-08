@@ -1,7 +1,7 @@
 close all; clear all; clc;
 %% simulation parameters
-without_meas_uncertainty  = false;
-without_actuator_dynamics = true;
+without_meas_uncertainty  = true;
+without_actuator_dynamics = false;
 
 %% assumed manipulator truth parameters
 % these are the values used to compute the dynamics of the manipulator,
@@ -70,7 +70,7 @@ robot.Gravity    = g;
 A = [zeros(2) eye(2); zeros(2) zeros(2)];
 B = [zeros(2); eye(2)];
 
-Q = diag([33 33 200 200]);
+Q = diag([33 1200 200 1200]);
 %Q = diag([1 2 0.5 0.5]);
 R = diag([0.005 0.005]);
 
