@@ -70,7 +70,8 @@ robot.Gravity    = g;
 A = [zeros(2) eye(2); zeros(2) zeros(2)];
 B = [zeros(2); eye(2)];
 
-Q = diag([1 2 0.1 0.1]);
+Q = diag([33 33 200 200]);
+%Q = diag([1 2 0.5 0.5]);
 R = diag([0.005 0.005]);
 
 K = lqr(A,B,Q,R);
