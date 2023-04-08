@@ -1,6 +1,6 @@
 close all; clear all; clc;
 %% simulation parameters
-without_meas_uncertainty  = true;
+without_meas_uncertainty  = false;
 without_actuator_dynamics = true;
 
 %% assumed manipulator truth parameters
@@ -76,16 +76,43 @@ R = diag([0.005 0.005]);
 K = lqr(A,B,Q,R);
 
 %% Encoder settings
-resolution = 2^12;
-%resolution = 2^14;
-%resolution = 2^16;
+%sensor 1 AS5600
+    %sensor resolution
+    resolution = 2^12;
+    %measurement delay (ms)
+    delay = 2.2;
+    %peak to peak noise (radians)
+    noise = 3.7e-4;
+    offset_error = 0.0175;
 
-offset_error = 1/180*pi; %degree to rad
+%sensor 2 MT2865
+    % %sensor resolution
+    % resolution = 2^18;
+    % %measurement delay (ms)
+    % delay = 0.003;
+    % %peak to peak noise (radians)
+    % noise = 7.7e-4;
+    % offset_error = 0.0175;
 
-%measurement delay
-delay_length = 1;
+%sensor 3 Inductive Encoder
+    % %sensor resolution
+    % resolution = 2^16;
+    % %measurement delay (ms)
+    % delay = 0.1;
+    % %peak to peak noise (radians)
+    % noise = 9.59e-5;
+    % offset_error = 1.71e-3;
+    
 
-%signal noise
+
+
+%gaussian noise inputs noise characteristics
 mean = 0;
-variance = 0.001;
+%variance = square of pkpk noise/6 (6 sigma)
+variance = (noise/6)^2;
 seed = 1;
+
+%delay scaling
+sample_time = 0.001;
+%adding microcontroller processing time
+true_delay = floor(delay*10^-3/sample_time)+sample_time*10^3;
