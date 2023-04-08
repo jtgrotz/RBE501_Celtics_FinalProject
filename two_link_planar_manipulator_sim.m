@@ -1,14 +1,20 @@
 close all; clear all; clc;
+%% simulation parameters
+without_meas_uncertainty  = true;
+without_actuator_dynamics = true;
 
-%% manipulator truth parameters
+%% assumed manipulator truth parameters
+% these are the values used to compute the dynamics of the manipulator,
+% which is used for feedback linearization
+
 % link lengths (m)
-l = [1 1];
+l = [0.25 0.25];
 
 % link widths (m)
-w = [0.5 0.5];
+w = [0.04 0.04];
 
 % link heights (m)
-h = [0 0];
+h = [0.04 0.04];
 
 % link masses (kg)
 m = [1 1];
@@ -26,7 +32,9 @@ dh = [...
     l(1) 0 0 0; ...
     l(2) 0 0 0];
 
-%% manipulator setup
+%% manipulator truth setup
+% this is where we should apply model uncertainties
+
 % add joints
 joint1 = robotics.Joint('joint1', 'revolute');
 joint2 = robotics.Joint('joint2', 'revolute');
@@ -62,8 +70,8 @@ robot.Gravity    = g;
 A = [zeros(2) eye(2); zeros(2) zeros(2)];
 B = [zeros(2); eye(2)];
 
-Q = eye(4);
-R = eye(2);
+Q = diag([1 2 0.1 0.1]);
+R = diag([0.005 0.005]);
 
 K = lqr(A,B,Q,R);
 
@@ -81,7 +89,3 @@ delay_length = 1;
 mean = 0;
 variance = 0.001;
 seed = 1;
-
-%% Model difference settings
-difference = 0.95;
-l1_hat = l*difference;
