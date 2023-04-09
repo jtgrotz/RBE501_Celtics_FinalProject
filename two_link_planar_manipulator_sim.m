@@ -1,7 +1,8 @@
 close all; clear all; clc;
 %% simulation parameters
 without_meas_uncertainty  = true;
-without_actuator_dynamics = false;
+without_actuator_dynamics = true;
+sensorCase                = 3;
 
 %% assumed manipulator truth parameters
 % these are the values used to compute the dynamics of the manipulator,
@@ -71,49 +72,55 @@ A = [zeros(2) eye(2); zeros(2) zeros(2)];
 B = [zeros(2); eye(2)];
 
 Q = diag([33 1200 200 1200]);
-%Q = diag([1 2 0.5 0.5]);
 R = diag([0.005 0.005]);
 
 K = lqr(A,B,Q,R);
 
 %% Encoder settings
-%sensor 1 AS5600
-    %sensor resolution
-    resolution = 2^12;
-    %measurement delay (ms)
-    delay = 2.2;
-    %peak to peak noise (radians)
-    noise = 3.7e-4;
-    offset_error = 0.0175;
+switch sensorCase
+    case 1 %AS5600
+        % sensor resolution
+        resolution = 2^12;
 
-%sensor 2 MT2865
-    % %sensor resolution
-    % resolution = 2^18;
-    % %measurement delay (ms)
-    % delay = 0.003;
-    % %peak to peak noise (radians)
-    % noise = 7.7e-4;
-    % offset_error = 0.0175;
+        % measurement delay (ms)
+        delay = 2.2;
 
-%sensor 3 Inductive Encoder
-    % %sensor resolution
-    % resolution = 2^16;
-    % %measurement delay (ms)
-    % delay = 0.1;
-    % %peak to peak noise (radians)
-    % noise = 9.59e-5;
-    % offset_error = 1.71e-3;
-    
+        % peak to peak noise (radians)
+        noise = 3.7e-4;
 
+        offset_error = 0.0175;
+    case 2 %MT2865
+        % sensor resolution
+        resolution = 2^18;
 
+        % measurement delay (ms)
+        delay = 0.003;
 
-%gaussian noise inputs noise characteristics
+        % peak to peak noise (radians)
+        noise = 7.7e-4;
+
+        offset_error = 0.0175;
+    case 3 %Inductive Encoder
+        % sensor resolution
+        resolution = 2^16;
+
+        % measurement delay (ms)
+        delay = 0.1;
+
+        % peak to peak noise (radians)
+        noise = 9.59e-5;
+
+        offset_error = 1.71e-3;
+end
+
+% gaussian noise inputs noise characteristics
 mean = 0;
-%variance = square of pkpk noise/6 (6 sigma)
+% variance = square of pkpk noise/6 (6 sigma)
 variance = (noise/6)^2;
 seed = 1;
 
-%delay scaling
+% delay scaling
 sample_time = 0.001;
-%adding microcontroller processing time
+
+% adding microcontroller processing time
 true_delay = floor(delay*10^-3/sample_time)+sample_time*10^3;
