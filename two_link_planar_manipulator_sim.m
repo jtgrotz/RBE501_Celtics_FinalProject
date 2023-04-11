@@ -1,14 +1,21 @@
 close all; clear all; clc;
+%% simulation parameters
+without_meas_uncertainty  = true;
+without_actuator_dynamics = true;
+sensorCase                = 3;
 
-%% manipulator truth parameters
+%% assumed manipulator truth parameters
+% these are the values used to compute the dynamics of the manipulator,
+% which is used for feedback linearization
+
 % link lengths (m)
-l = [1 1];
+l = [0.25 0.25];
 
 % link widths (m)
-w = [0.5 0.5];
+w = [0.04 0.04];
 
 % link heights (m)
-h = [0 0];
+h = [0.04 0.04];
 
 % link masses (kg)
 m = [1 1];
@@ -26,7 +33,9 @@ dh = [...
     l(1) 0 0 0; ...
     l(2) 0 0 0];
 
-%% manipulator setup
+%% manipulator truth setup
+% this is where we should apply model uncertainties
+
 % add joints
 joint1 = robotics.Joint('joint1', 'revolute');
 joint2 = robotics.Joint('joint2', 'revolute');
@@ -62,26 +71,56 @@ robot.Gravity    = g;
 A = [zeros(2) eye(2); zeros(2) zeros(2)];
 B = [zeros(2); eye(2)];
 
-Q = eye(4);
-R = eye(2);
+Q = diag([33 1200 200 1200]);
+R = diag([0.005 0.005]);
 
 K = lqr(A,B,Q,R);
 
 %% Encoder settings
-resolution = 2^12;
-%resolution = 2^14;
-%resolution = 2^16;
+switch sensorCase
+    case 1 %AS5600
+        % sensor resolution
+        resolution = 2^12;
 
-offset_error = 1/180*pi; %degree to rad
+        % measurement delay (ms)
+        delay = 2.2;
 
-%measurement delay
-delay_length = 1;
+        % peak to peak noise (radians)
+        noise = 3.7e-4;
 
-%signal noise
+        offset_error = 0.0175;
+    case 2 %MT2865
+        % sensor resolution
+        resolution = 2^18;
+
+        % measurement delay (ms)
+        delay = 0.003;
+
+        % peak to peak noise (radians)
+        noise = 7.7e-4;
+
+        offset_error = 0.0175;
+    case 3 %Inductive Encoder
+        % sensor resolution
+        resolution = 2^16;
+
+        % measurement delay (ms)
+        delay = 0.1;
+
+        % peak to peak noise (radians)
+        noise = 9.59e-5;
+
+        offset_error = 1.71e-3;
+end
+
+% gaussian noise inputs noise characteristics
 mean = 0;
-variance = 0.001;
+% variance = square of pkpk noise/6 (6 sigma)
+variance = (noise/6)^2;
 seed = 1;
 
-%% Model difference settings
-difference = 0.95;
-l1_hat = l*difference;
+% delay scaling
+sample_time = 0.001;
+
+% adding microcontroller processing time
+true_delay = floor(delay*10^-3/sample_time)+sample_time*10^3;
